@@ -18,10 +18,21 @@
     <ClCompile Include="ProcessForm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MySobel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProcessForm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MySobel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProcessForm.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

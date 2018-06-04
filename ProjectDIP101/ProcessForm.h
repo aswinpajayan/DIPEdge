@@ -1,5 +1,5 @@
 #pragma once
-
+#include "MySobel.h"
 namespace ProjectDIP101 {
 
 	using namespace System;
@@ -12,6 +12,7 @@ namespace ProjectDIP101 {
 
 	/// <summary>
 	/// Summary for ProcessForm
+	/// This form is used to hold the images before and after detection 
 	/// </summary>
 	public ref class ProcessForm : public System::Windows::Forms::Form
 	{
@@ -23,7 +24,7 @@ namespace ProjectDIP101 {
 			//TODO: Add the constructor code here
 			//
 		}
-
+		String^  imagePath;
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
@@ -76,10 +77,9 @@ namespace ProjectDIP101 {
 			this->picBoxOriginal->Location = System::Drawing::Point(22, 44);
 			this->picBoxOriginal->Name = L"picBoxOriginal";
 			this->picBoxOriginal->Size = System::Drawing::Size(360, 220);
+			this->picBoxOriginal->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
 			this->picBoxOriginal->TabIndex = 0;
 			this->picBoxOriginal->TabStop = false;
-			this->picBoxOriginal->SizeMode = PictureBoxSizeMode::StretchImage;
-			
 			// 
 			// menuStrip1
 			// 
@@ -113,19 +113,20 @@ namespace ProjectDIP101 {
 			// sobelToolStripMenuItem
 			// 
 			this->sobelToolStripMenuItem->Name = L"sobelToolStripMenuItem";
-			this->sobelToolStripMenuItem->Size = System::Drawing::Size(144, 22);
+			this->sobelToolStripMenuItem->Size = System::Drawing::Size(180, 22);
 			this->sobelToolStripMenuItem->Text = L"sobel";
+			this->sobelToolStripMenuItem->Click += gcnew System::EventHandler(this, &ProcessForm::sobelToolStripMenuItem_Click);
 			// 
 			// gaussianBlurToolStripMenuItem
 			// 
 			this->gaussianBlurToolStripMenuItem->Name = L"gaussianBlurToolStripMenuItem";
-			this->gaussianBlurToolStripMenuItem->Size = System::Drawing::Size(144, 22);
+			this->gaussianBlurToolStripMenuItem->Size = System::Drawing::Size(180, 22);
 			this->gaussianBlurToolStripMenuItem->Text = L"gaussian blur";
 			// 
 			// cannyToolStripMenuItem
 			// 
 			this->cannyToolStripMenuItem->Name = L"cannyToolStripMenuItem";
-			this->cannyToolStripMenuItem->Size = System::Drawing::Size(144, 22);
+			this->cannyToolStripMenuItem->Size = System::Drawing::Size(180, 22);
 			this->cannyToolStripMenuItem->Text = L"canny";
 			// 
 			// picBoxProcessed
@@ -133,9 +134,9 @@ namespace ProjectDIP101 {
 			this->picBoxProcessed->Location = System::Drawing::Point(398, 44);
 			this->picBoxProcessed->Name = L"picBoxProcessed";
 			this->picBoxProcessed->Size = System::Drawing::Size(360, 220);
+			this->picBoxProcessed->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
 			this->picBoxProcessed->TabIndex = 2;
 			this->picBoxProcessed->TabStop = false;
-			this->picBoxProcessed->SizeMode = PictureBoxSizeMode::StretchImage;
 			// 
 			// ProcessForm
 			// 
@@ -174,9 +175,34 @@ private: System::Void openToolStripMenuItem_Click(System::Object^  sender, Syste
 	// the following line opens up the image select dialog box and waits for the user input 
 	if (selImage->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 	{
-		picBoxOriginal->Image = System::Drawing::Image::FromFile(selImage->FileName);
-		Debug::WriteLine("open dialog Opened");
+		imagePath = selImage->FileName;
+		picBoxOriginal->Image = System::Drawing::Image::FromFile(imagePath);
+		Debug::WriteLine("file selected");
+		/*UInt32 test = 0xffAACCAA;
+		Byte temp;
+		Debug::WriteLine(test);
+		Debug::WriteLine(test >> 8);
+		temp = (Byte)(test >> 16);*/
+		//Debug::WriteLine(temp);
+		
+	}  
+}
+private: System::Void sobelToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	MySobel^ sobel = gcnew MySobel(imagePath);
+	Debug::WriteLine(sobel->inputImage->GetPropertyItem(20753));
+	Debug::WriteLine(sobel->inputImage->PixelFormat);
+	if (sobel->inputImage->PixelFormat != PixelFormat::Format32bppArgb
+		&& sobel->inputImage->PixelFormat != PixelFormat::Format32bppRgb)
+	{
+		MessageBox::Show("this file format cannot be processed");
+		return;
 	}
+
+	sobel->getSobelEdge();
+
+	picBoxProcessed->Image = sobel->inputImage;
+	Debug::WriteLine("picBox updated");
+	
 }
 };
 }

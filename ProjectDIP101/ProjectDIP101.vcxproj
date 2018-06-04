@@ -133,9 +133,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="MySobel.cpp" />
     <ClCompile Include="ProcessForm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MySobel.h" />
     <ClInclude Include="ProcessForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
