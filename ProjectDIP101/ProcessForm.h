@@ -183,7 +183,7 @@ private: System::Void openToolStripMenuItem_Click(System::Object^  sender, Syste
 		Debug::WriteLine(test);
 		Debug::WriteLine(test >> 8);
 		temp = (Byte)(test >> 16);*/
-		//Debug::WriteLine(temp);
+		Debug::WriteLine("temp");
 		
 	}  
 }
