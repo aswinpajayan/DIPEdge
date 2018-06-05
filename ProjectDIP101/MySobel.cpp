@@ -6,10 +6,31 @@ MySobel::MySobel(String^ imagePath)
 	 this->inputImage = gcnew Bitmap(imagePath);
 	 this->width = inputImage->Width;
 	 this->height = inputImage->Height;
+	 this->size =  width * height;
 }
 Bitmap^ MySobel::getSobelEdge(void) {
 	Debug::WriteLine("Starting sobel Edge Detection");
-	convertTo8bpp();
+	Byte* grayData = new Byte[size];
+	grayData = MySobel::convertTo8bpp();
+/// SOBEL Kernels
+/// Gx = |1		0		-1|		Gy	=| 1		2		1|
+///		 |2		0		-2|			 | 0		0		0|
+///		 |1		0		-1|			 |-1	   -2	   -1|
+	//convolving sobel operator with the grayscale Image
+	double* magnitude = new double[size];		//to store magnitude of edge response
+	double* phase = new double[size];			//to store the phase of edge response 
+	double dx, dy;
+	
+	Byte* curPixel = grayData + width;
+	for (int y = 1; y < size; y++) {
+			dx = (*(curPixel - width - 1)) + (*(curPixel - 1)) * 2 + (*(curPixel + width - 1)) - (*(curPixel - width + 1)) - (*(curPixel + 1)) * 2 - (*(curPixel + width + 1));
+			dy = (*(curPixel - width - 1)) + (*(curPixel -width)) * 2 + (*(curPixel - width + 1)) - (*(curPixel + width -1)) - (*(curPixel + width)) * 2 - (*(curPixel + width + 1));
+			*(magnitude) = Math::Sqrt(dx*dx + dy * dy);
+			*(phase) = Math::Atan2(dy, dx) + Math::PI;
+			phase++;
+			magnitude++;
+			curPixel++;			//increments the pointer byte by byte
+	}
 	return this->inputImage;
 	
 }
@@ -18,7 +39,7 @@ Bitmap^ MySobel::getSobelEdge(void) {
 Byte* MySobel::convertTo8bpp()
 {
 	//this byte array is going to hold the grayscale data
-	Byte* grayData = new Byte[width*height];
+	Byte* grayData = new Byte[size];
 	Rectangle canvas =  Rectangle(0, 0, this->width, this->height);
 	// We are taking the pixel data into the bitmap data object 
 	System::Drawing::Imaging::BitmapData^ imageData = this->inputImage->LockBits(canvas,ImageLockMode::ReadWrite, inputImage->PixelFormat);
@@ -37,7 +58,6 @@ Byte* MySobel::convertTo8bpp()
 	UInt32 curPixel;
 	for (int y = 0; y < this->height; y++) {
 		for (int x = 0; x < this->width; x++) {
-			//Debug::WriteLine("just Entered the method");
 			curLocation = ptr + x + y * inputStride;
 			curPixel = *(curLocation); // getting the current pixel value 32 bit pixel value in ARGB format
 			//Debug::WriteLine("pixel in image is 0x{0:X}", curPixel);
@@ -46,6 +66,11 @@ Byte* MySobel::convertTo8bpp()
 			red		= (Byte)(curPixel >> 16);
 
 			gray = (red + green + blue) / 3;
+			/// Excat formula to construct grayscale image from rgb is given as
+			/// byte gray = (byte)(0.2126 * r + 0.7152 * g + 0.0722 * b);
+			/// this formula is taking consideration about the varition in sensitivity of 
+			/// red blue and green pixels . But as we are just interested in edges , 
+			/// we will use the averaging method
 			curPixel = gray ;
 			curPixel = curPixel << 8;
 			curPixel = curPixel | gray;
