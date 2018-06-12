@@ -22,7 +22,7 @@ Bitmap^ MySobel::getSobelEdge(void) {
 	double dx, dy;
 	
 	Byte* curPixel = grayData + width;
-	for (int y = 1; y < size; y++) {
+	for (int y = width; y < size-width; y++) {
 			dx = (*(curPixel - width - 1)) + (*(curPixel - 1)) * 2 + (*(curPixel + width - 1)) - (*(curPixel - width + 1)) - (*(curPixel + 1)) * 2 - (*(curPixel + width + 1));
 			dy = (*(curPixel - width - 1)) + (*(curPixel -width)) * 2 + (*(curPixel - width + 1)) - (*(curPixel + width -1)) - (*(curPixel + width)) * 2 - (*(curPixel + width + 1));
 			*(magnitude) = Math::Sqrt(dx*dx + dy * dy);
