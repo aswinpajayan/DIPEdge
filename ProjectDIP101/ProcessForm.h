@@ -24,7 +24,11 @@ namespace ProjectDIP101 {
 			//TODO: Add the constructor code here
 			//
 		}
-		String^  imagePath;
+	private: System::Windows::Forms::PictureBox^  picBoxSobel;
+	public:
+
+	public:
+		String ^ imagePath;
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
@@ -67,9 +71,11 @@ namespace ProjectDIP101 {
 			this->gaussianBlurToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->cannyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->picBoxProcessed = (gcnew System::Windows::Forms::PictureBox());
+			this->picBoxSobel = (gcnew System::Windows::Forms::PictureBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picBoxOriginal))->BeginInit();
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picBoxProcessed))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picBoxSobel))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// picBoxOriginal
@@ -77,7 +83,7 @@ namespace ProjectDIP101 {
 			this->picBoxOriginal->Location = System::Drawing::Point(22, 44);
 			this->picBoxOriginal->Name = L"picBoxOriginal";
 			this->picBoxOriginal->Size = System::Drawing::Size(360, 220);
-			this->picBoxOriginal->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
+			this->picBoxOriginal->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
 			this->picBoxOriginal->TabIndex = 0;
 			this->picBoxOriginal->TabStop = false;
 			// 
@@ -89,7 +95,7 @@ namespace ProjectDIP101 {
 			});
 			this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			this->menuStrip1->Name = L"menuStrip1";
-			this->menuStrip1->Size = System::Drawing::Size(774, 24);
+			this->menuStrip1->Size = System::Drawing::Size(1138, 24);
 			this->menuStrip1->TabIndex = 1;
 			this->menuStrip1->Text = L"menuStrip1";
 			// 
@@ -113,20 +119,20 @@ namespace ProjectDIP101 {
 			// sobelToolStripMenuItem
 			// 
 			this->sobelToolStripMenuItem->Name = L"sobelToolStripMenuItem";
-			this->sobelToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->sobelToolStripMenuItem->Size = System::Drawing::Size(144, 22);
 			this->sobelToolStripMenuItem->Text = L"sobel";
 			this->sobelToolStripMenuItem->Click += gcnew System::EventHandler(this, &ProcessForm::sobelToolStripMenuItem_Click);
 			// 
 			// gaussianBlurToolStripMenuItem
 			// 
 			this->gaussianBlurToolStripMenuItem->Name = L"gaussianBlurToolStripMenuItem";
-			this->gaussianBlurToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->gaussianBlurToolStripMenuItem->Size = System::Drawing::Size(144, 22);
 			this->gaussianBlurToolStripMenuItem->Text = L"gaussian blur";
 			// 
 			// cannyToolStripMenuItem
 			// 
 			this->cannyToolStripMenuItem->Name = L"cannyToolStripMenuItem";
-			this->cannyToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->cannyToolStripMenuItem->Size = System::Drawing::Size(144, 22);
 			this->cannyToolStripMenuItem->Text = L"canny";
 			// 
 			// picBoxProcessed
@@ -134,15 +140,25 @@ namespace ProjectDIP101 {
 			this->picBoxProcessed->Location = System::Drawing::Point(398, 44);
 			this->picBoxProcessed->Name = L"picBoxProcessed";
 			this->picBoxProcessed->Size = System::Drawing::Size(360, 220);
-			this->picBoxProcessed->SizeMode = System::Windows::Forms::PictureBoxSizeMode::StretchImage;
+			this->picBoxProcessed->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
 			this->picBoxProcessed->TabIndex = 2;
 			this->picBoxProcessed->TabStop = false;
+			// 
+			// picBoxSobel
+			// 
+			this->picBoxSobel->Location = System::Drawing::Point(764, 44);
+			this->picBoxSobel->Name = L"picBoxSobel";
+			this->picBoxSobel->Size = System::Drawing::Size(360, 220);
+			this->picBoxSobel->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
+			this->picBoxSobel->TabIndex = 3;
+			this->picBoxSobel->TabStop = false;
 			// 
 			// ProcessForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(774, 276);
+			this->ClientSize = System::Drawing::Size(1138, 299);
+			this->Controls->Add(this->picBoxSobel);
 			this->Controls->Add(this->picBoxProcessed);
 			this->Controls->Add(this->picBoxOriginal);
 			this->Controls->Add(this->menuStrip1);
@@ -153,6 +169,7 @@ namespace ProjectDIP101 {
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picBoxProcessed))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picBoxSobel))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -175,6 +192,8 @@ private: System::Void openToolStripMenuItem_Click(System::Object^  sender, Syste
 	// the following line opens up the image select dialog box and waits for the user input 
 	if (selImage->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 	{
+		picBoxProcessed->Image = nullptr;
+		picBoxSobel->Image = nullptr;
 		imagePath = selImage->FileName;
 		picBoxOriginal->Image = System::Drawing::Image::FromFile(imagePath);
 		Debug::WriteLine("file selected");
@@ -197,12 +216,14 @@ private: System::Void sobelToolStripMenuItem_Click(System::Object^  sender, Syst
 		MessageBox::Show("this file format cannot be processed");
 		return;
 	}
-
-	sobel->getSobelEdge();
-
-	picBoxProcessed->Image = sobel->inputImage;
+	picBoxSobel->Image = sobel->getSobelImage();
+	picBoxProcessed->Image = System::Drawing::Image::FromFile("grayscaleImage.png");
+	
+	
 	Debug::WriteLine("picBox updated");
 	
 }
+
+
 };
 }

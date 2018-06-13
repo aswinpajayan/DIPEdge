@@ -11,19 +11,32 @@
 	using namespace System::Text;
 	using namespace System::Drawing;
 	using namespace System::Drawing::Imaging;
+	using namespace System::IO;
+	using namespace System;
 	ref class MySobel
 	{
 	public:
 		MySobel(String^ imagePath);
-		Bitmap^ getSobelEdge(void);
-		Byte* convertTo8bpp();
+		const static String^ out_grayImage = gcnew String("F:\\photos\\grayscaleImage.png");	//file paths to output images
+		const static String^ out_SobelImage = gcnew String("F:\\photos\\edgeImage.png");
 		Bitmap ^ inputImage;
+		/// this method is used to display the output of sobel edge detection
+		Bitmap^ getSobelImage(void);
+		/// this method is used to calculate find the edge magnitude and orientation
+		void getSobelEdge(void);
+
+		static void HSV2RGB(double hue, double sat, double value, Byte *red , Byte *green, Byte *blue );
 
 	private:
 		
 		int width = 0;
 		int height = 0;
 		int size;
+		double* magnitude; 		//to store magnitude of edge response
+		double* orientation;			//to store the phase of edge response
+		double maxMagnitude = 0;
+		Byte* convertTo8bpp();
+		
 
 
 	};
