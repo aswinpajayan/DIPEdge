@@ -2,16 +2,19 @@
 #include<stdio.h>
 using namespace System::Diagnostics;
 
+
+//constructor for Sobel class note that it take as input image as argument
 MySobel::MySobel(String^ imagePath)
 {
-	 this->inputImage = gcnew Bitmap(imagePath);
-	 this->width = inputImage->Width;
-	 this->height = inputImage->Height;
-	 this->size =  width * height;
-	 magnitude = new double[this->size];		//to store magnitude of edge response
-	 orientation = new double[this->size];			//to store the phase of edge response
-	 Debug::WriteLine(" magnitude pointer at 0x{0:X}", (int)magnitude);
-	 Debug::WriteLine(" orientation pointer at 0x{0:X}", (int)orientation);
+	MySobel::index++;
+	this->inputImage = gcnew Bitmap(imagePath);
+	this->width = inputImage->Width;
+	this->height = inputImage->Height;
+	this->size =  width * height;
+	magnitude = new double[this->size];		//to store magnitude of edge response
+	orientation = new double[this->size];			//to store the phase of edge response
+	Debug::WriteLine(" magnitude pointer at 0x{0:X}", (int)magnitude);
+	Debug::WriteLine(" orientation pointer at 0x{0:X}", (int)orientation);
 }
 	void MySobel::getSobelEdge(void) {
 	Debug::WriteLine("Starting sobel Edge Detection");
@@ -155,9 +158,12 @@ Byte* MySobel::convertTo8bpp()
 	}
 	Debug::WriteLine("finished processing");
 	inputImage->UnlockBits(imageData);
-	String^ path = gcnew String("grayscaleImage.png");
-	if (File::Exists(path))
-		File::Delete(path);
+	String^ path = gcnew String("..\\grayscaleImage_" + MySobel::get_index() + ".png");
+	if (File::Exists(path)) {
+		MySobel::index++;
+		path = gcnew String("..\\grayscaleImage_" + MySobel::get_index() + ".png");
+	}
+		
 	inputImage->Save(path);
 	Debug::WriteLine("written image");
 	return grayData;
@@ -218,5 +224,15 @@ void MySobel::HSV2RGB(double hue, double sat, double value, Byte * red, Byte * g
 	*red = (Byte)(red_ * 255);
 	*green = (Byte)(green_ * 255);
 	*blue = (Byte)(blue_ * 255);
+}
+
+void MySobel::set_index(int index)
+{
+	MySobel::index = index;
+}
+
+String^ MySobel::get_index(void)
+{
+	return System::Convert::ToString(MySobel::index);
 }
 

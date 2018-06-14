@@ -26,6 +26,8 @@
 		void getSobelEdge(void);
 
 		static void HSV2RGB(double hue, double sat, double value, Byte *red , Byte *green, Byte *blue );
+		static void set_index(int index);
+		static String^ get_index(void);
 
 	private:
 		
@@ -36,6 +38,7 @@
 		double* orientation;			//to store the phase of edge response
 		double maxMagnitude = 0;
 		Byte* convertTo8bpp();
+		static int index;			//to store number of images processed since the uptime of the application 
 		
 
 

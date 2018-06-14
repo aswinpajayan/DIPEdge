@@ -217,7 +217,7 @@ private: System::Void sobelToolStripMenuItem_Click(System::Object^  sender, Syst
 		return;
 	}
 	picBoxSobel->Image = sobel->getSobelImage();
-	picBoxProcessed->Image = System::Drawing::Image::FromFile("grayscaleImage.png");
+	picBoxProcessed->Image = System::Drawing::Image::FromFile("..\\grayscaleImage_" + MySobel::get_index() + ".png");
 	
 	
 	Debug::WriteLine("picBox updated");
