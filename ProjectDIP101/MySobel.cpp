@@ -11,10 +11,22 @@ MySobel::MySobel(String^ imagePath)
 	this->width = inputImage->Width;
 	this->height = inputImage->Height;
 	this->size =  width * height;
+	Rectangle canvas = Rectangle(0, 0, this->width, this->height);
+	// We are taking the pixel data into the bitmap data object 
+	imageData = this->inputImage->LockBits(canvas, ImageLockMode::ReadWrite, inputImage->PixelFormat);
+	 
+	/// stride represents the offset after each line an image array
+	///Stride is divided by four assuming an ARGB image 
+	/// change the above line to imageData/3 for an RGB image
+	if(inputImage->PixelFormat == PixelFormat::Format32bppArgb || inputImage->PixelFormat == PixelFormat::Format32bppRgb)
+		inputStride = imageData->Stride / 4;
+	if(inputImage->PixelFormat == PixelFormat::Format24bppRgb )
+		inputStride = imageData->Stride / 3;
+
 	magnitude = new double[this->size];		//to store magnitude of edge response
 	orientation = new double[this->size];			//to store the phase of edge response
-	Debug::WriteLine(" magnitude pointer at 0x{0:X}", (int)magnitude);
-	Debug::WriteLine(" orientation pointer at 0x{0:X}", (int)orientation);
+	//Debug::WriteLine(" magnitude pointer at 0x{0:X}", (int)magnitude);
+	//Debug::WriteLine(" orientation pointer at 0x{0:X}", (int)orientation);
 }
 	void MySobel::getSobelEdge(void) {
 	Debug::WriteLine("Starting sobel Edge Detection");
@@ -76,12 +88,8 @@ MySobel::MySobel(String^ imagePath)
 		sat = 1;
 		Rectangle canvas = Rectangle(0, 0, this->width, this->height);
 		// We are taking the pixel data into the bitmap data object 
-		// we will use the image created to display the sobel edge 
-		System::Drawing::Imaging::BitmapData^ sobelImageData = this->inputImage->LockBits(canvas, ImageLockMode::ReadWrite, inputImage->PixelFormat);
-		UInt32 *ptr = (UInt32*)sobelImageData->Scan0.ToPointer();
-		int inputStride = sobelImageData->Stride / 4; // stride represents the offset after each line an image array
-		///Stride is divided by four assuming an ARGB image 
-		/// change the above line to imageData/3 for an RGB image
+		this->imageData = this->inputImage->LockBits(canvas, ImageLockMode::ReadWrite, inputImage->PixelFormat);
+		UInt32 *ptr = (UInt32*)imageData->Scan0.ToPointer();
 		Byte red, green, blue;
 		UInt32 *curLocation;
 		UInt32 curPixel;
@@ -100,7 +108,13 @@ MySobel::MySobel(String^ imagePath)
 		}
 
 		Debug::WriteLine("finished processing");
-		inputImage->UnlockBits(sobelImageData);
+		String^ path = gcnew String("..\\out_folder_DIP\\edgeImage_" + MySobel::get_index() + ".png");
+		if (File::Exists(path)) {
+			MySobel::index++;
+			path = gcnew String("..\\out_folder_DIP\\edgeImage_" + MySobel::get_index() + ".png");
+		}
+		inputImage->UnlockBits(imageData);
+		inputImage->Save(path);
 		Debug::WriteLine("written image");
 		return this->inputImage;
 	}
@@ -110,18 +124,13 @@ Byte* MySobel::convertTo8bpp()
 {
 	//this byte array is going to hold the grayscale data
 	Byte* grayData = new Byte[size];
-	Rectangle canvas =  Rectangle(0, 0, this->width, this->height);
-	// We are taking the pixel data into the bitmap data object 
-	System::Drawing::Imaging::BitmapData^ imageData = this->inputImage->LockBits(canvas,ImageLockMode::ReadWrite, inputImage->PixelFormat);
 	UInt32 *ptr = (UInt32*)imageData->Scan0.ToPointer();		//this line get the pointer to the first pixel - assuming the pointer to be 32 bit 
 	///
 	///  now each of the pixel will be having an R,G and B Channel and sometimes an Alhpa Channel
 	/// (for transparency in Png images)
 	///	we will iterate through each of the pixels using pointers and have to convert them to grayscale 
 	///
-	int inputStride = imageData->Stride / 4; // stride represents the offset after each line an image array
-	///Stride is divided by four assuming an ARGB image 
-	/// change the above line to imageData/3 for an RGB image
+	
 	Byte red, green, blue;
 	int gray;
 	UInt32 *curLocation;
@@ -158,10 +167,10 @@ Byte* MySobel::convertTo8bpp()
 	}
 	Debug::WriteLine("finished processing");
 	inputImage->UnlockBits(imageData);
-	String^ path = gcnew String("..\\grayscaleImage_" + MySobel::get_index() + ".png");
+	String^ path = gcnew String("..\\out_folder_DIP\\grayscaleImage_" + MySobel::get_index() + ".png");
 	if (File::Exists(path)) {
 		MySobel::index++;
-		path = gcnew String("..\\grayscaleImage_" + MySobel::get_index() + ".png");
+		path = gcnew String("..\\out_folder_DIP\\grayscaleImage_" + MySobel::get_index() + ".png");
 	}
 		
 	inputImage->Save(path);

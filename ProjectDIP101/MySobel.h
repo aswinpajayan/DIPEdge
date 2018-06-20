@@ -39,6 +39,9 @@
 		double maxMagnitude = 0;
 		Byte* convertTo8bpp();
 		static int index;			//to store number of images processed since the uptime of the application 
+		int inputStride;			// this changes with the pixel format of the input Image 
+
+		System::Drawing::Imaging::BitmapData^ imageData;
 		
 
 
